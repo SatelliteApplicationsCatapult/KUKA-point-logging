@@ -1,0 +1,65 @@
+&ACCESS RVO1
+&REL 52
+&PARAM EDITMASK = *
+&PARAM TEMPLATE = C:\KRC\Roboter\Template\vorgabe
+DEF log3(x1:in,x2:in,x3:in,x4:in,x5:in,x6:in,x7:in)
+
+decl real x1,x2,x3,x4,x5,x6,x7
+int handle
+decl state_t s
+decl modus_t m
+decl char myData[200]
+decl char myTime[200]
+decl int ofs
+decl date now
+
+now = $date
+ofs=0
+
+
+;timestamp = now.DAY*86400 + now.MONTH*2678400 +now.HOUR*3600
+
+;FOLD WAIT Time= 0.0 sec ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.logics.wait; Time=0.0
+;ENDFOLD
+WAIT SEC 0.0
+;ENDFOLD
+swrite(myData[],s,ofs,"%f, %f, %f, %f, %f, %f, %f, %02d : %02d : %02d",x1,x2,x3,x4,x5,x6,x7, now.MIN, now.SEC, now.CSEC)
+;FOLD WAIT Time= 0.0 sec ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.logics.wait; Time=0.0
+;ENDFOLD
+WAIT SEC 0.0
+;ENDFOLD
+
+; ... and then write entire string to a file (at once!)
+m=#sync
+handle=0
+
+; open file
+CWRITE($FCT_CALL,s,m,"krl_fopen","test3_log.txt","a",handle)
+
+; write data
+CWRITE($FCT_CALL,s,m,"krl_fprintf",handle, "%s%s%s","   ", myData[], ". ")
+
+;FOLD WAIT Time= 0.5 sec ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.logics.wait; Time=0.0
+;ENDFOLD
+WAIT SEC 0.0
+;ENDFOLD
+
+CWRITE($FCT_CALL,s,m,"krl_fprintf",handle,"%d %d %d %d %s",$DATE.HOUR, $DATE.DAY, $DATE.MONTH, $DATE.YEAR, "'H0D''H0A' END")
+
+;FOLD WAIT Time= 0.5 sec ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.logics.wait; Time=0.0
+;ENDFOLD
+WAIT SEC 0.0
+;ENDFOLD
+
+; close file
+cwrite($FCT_CALL, s,m,"krl_fclose",handle)
+
+END
